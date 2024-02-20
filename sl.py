@@ -1,13 +1,4 @@
-import socket,sys,time;
-#Private Functions
-def host_resolves(host):
-    try:
-        ip=socket.gethostbyname(host);
-        return True;
-    except socket.error:
-        return False;
-    ##endtry
-##end
+import os,platform,socket,sys,time;
 #ARGUMENT PARSER
 def parseArguments(args=None,parseOptions=None):
     if (args!=None):
@@ -27,6 +18,15 @@ def parseInput(val):
         ##end
     ##endif
     return command,args;
+##end
+#VALIDATION
+def host_resolves(host):
+    try:
+        ip=socket.gethostbyname(host);
+        return True;
+    except socket.error:
+        return False;
+    ##endtry
 ##end
 def ynPrompt(prompt,ony=None,onn=None):
     yn=input(prompt);
@@ -50,6 +50,38 @@ def validateInput(prompt=None,onEnter=None):
         validateInput(prompt,onEnter);
     else:
         return val;
+    ##endif
+##end
+#HELPER FUNCTIONS
+def sshto(host,port):
+    pass;
+##end
+def dirExists(path):
+    return os.path.exists(path);
+##end
+def mount(host,port):
+    os_name=platform.system();
+    if (os_name=='Linux'):
+        if (dirExists('/media/Serverlink')):
+            os.mkdir(f'/media/Serverlink/sl-{host}');
+        else:
+            os.mkdir('/media/Serverlink');
+            os.mkdir(f'/media/Serverlink/sl-{host}');
+        ##endif
+    elif (os_name=='Windows'):
+        appDataPath=os.getenv('APPDATA');
+        if (appDataPath!=None):
+            if (dirExists(f'{appDataPath}/Serverlink')):
+                os.mkdir(f'{appDataPath}/Serverlink/{host}');
+            else:
+                os.mkdir(f'{appDataPath}/Serverlink');
+                os.mkdir(f'{appDataPath}/Serverlink/{host}');
+            ##endif
+        else:
+            print('Failed to find %APPDATA% directory..');
+        ##endif
+    else:
+        print('Unsupported OS, sorry.');
     ##endif
 ##end
 def strToBool(string):
@@ -116,9 +148,6 @@ def connect(host=None,port=None):
     else:
         print('Unable to get address info.. Host doesn\'t exist or is not resolved.');
     ##endif
-##end
-def mount(host,port):
-    pass;
 ##end
 def disconnect():
     print('disconnect called');
@@ -194,6 +223,23 @@ def main():
                             handleViewAsPage(url);
                         ##endif
                     ##endif
+                ##endif
+            elif (action=='ssh'):
+                if (cmdargs!=[]):
+                    global port;
+                    url=cmdargs[0];
+                    if (len(cmdargs)>1):
+                        port=int(cmdargs[2]);
+                    else:
+                        port=8080;
+                    ##endif
+                    if (len(cmdargs)>2):
+                        createDrive=strToBool(cmdargs[2]);
+                        if (createDrive==True):
+                            mount(url,port);
+                        ##endif
+                    ##endif
+                    sshto(url,port);
                 ##endif
             else:
                 print(f"SYNTAX ERROR: Unknown command '{action}'.");
