@@ -45,7 +45,13 @@ else:
     print(f'Welcome to Serverlink v1.20.0\nWhat would you like to do?');
     action=input('> ');
     if (action=='connect'):
-        url=input('connect > ');
-        connect(url);
+        def getInput():
+            host=input('connect > ');
+            if (host!=None and host!=""):
+                connect(host);
+            else:
+                getInput();
+            ##endif
+        ##end
     ##endif
 ##endif
