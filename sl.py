@@ -1,20 +1,20 @@
-import sys,time;
+import socket,sys,time;
 args=sys.argv;
 def connect(host=None,options=None):
     global magicExitCode;
     magicExitCode=False;
-    print(f'Connecting to https://{host}, please wait...');
-    time.sleep(3);
-    print(f'Connected to https://{host} on port 8080.');
-    def doCLI():
+    def doCLI(host):
         global magicExitCode;
         while (not magicExitCode):
-            action=input(f'https://{url} >');
+            action=input(f'https://{host} >');
             if (action=='exit' or action=='quit' or action=='disconnect'):
                 magicExitCode=True;
             ##endif
         ##end
     ##end
+    print(f'Connecting to https://{host}, please wait...');
+    time.sleep(3);
+    print(f'Connected to https://{host} on port 8080.');
     isReconnect=input('> ');
 ##end
 def disconnect():
