@@ -15,13 +15,19 @@ def connect(host=None,options=None):
     print(f'Connecting to https://{host}, please wait...');
     time.sleep(3);
     try:
+        global magicExitCode;
         if (socket.gethostfromname(host)):
             addr=socket.gethostfromname(host);
             print(f'Connected to https://{addr} on port 8080.');
+            magicExitCode=False;
+            doCLI(host);
         ##endif
     except socket.gaierror as err:
         print('Unable to get address info.. Host doesn\'t exist or is not resolved.')
     ##endtry
+##end
+def mount(host):
+    pass;
 ##end
 def disconnect():
     print('disconnect called');
