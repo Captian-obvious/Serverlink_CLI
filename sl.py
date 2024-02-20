@@ -15,7 +15,7 @@ def disconnect():
 ##end
 print(f'SCRIPT: {args[0]}');
 if (len(args)>1):
-    if (args[1].lower()=='> connect'):
+    if (args[1].lower()=='>connect'):
         url=input('> ');
         connect(url);
     ##endif
