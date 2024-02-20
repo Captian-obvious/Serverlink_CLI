@@ -1,10 +1,17 @@
 import sys,time;
 args=sys.argv;
 def connect(host=None):
+    global magicExitCode;
+    magicExitCode=False;
     print(f'Connecting to https://{host}, please wait...');
     time.sleep(3);
     print(f'Connected to https://{host} on port 8080.');
-    action=input(f'https://{url}> ');
+    while (not magicExitCode):
+        action=input(f'https://{url} >');
+        if (action=='exit' or action=='quit' or action=='disconnect'):
+            magicExitCode=True;
+        ##endif
+    ##end
 ##end
 def disconnect():
     print('disconnect called');
