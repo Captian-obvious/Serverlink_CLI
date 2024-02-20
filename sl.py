@@ -5,7 +5,6 @@ def connect(host=None):
     time.sleep(3);
     print(f'Connected to https://{host} on port 8080.');
     action=input(f'https://{url}> ');
-    print(f'{action}');
 ##end
 def disconnect():
     print('disconnect called');
