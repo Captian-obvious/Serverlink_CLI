@@ -7,6 +7,7 @@ def connect(host=None,options=None):
     time.sleep(3);
     print(f'Connected to https://{host} on port 8080.');
     def doCLI():
+        global magicExitCode;
         while (not magicExitCode):
             action=input(f'https://{url} >');
             if (action=='exit' or action=='quit' or action=='disconnect'):
