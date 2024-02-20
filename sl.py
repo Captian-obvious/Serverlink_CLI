@@ -1,10 +1,10 @@
 import sys,time;
 args=sys.argv;
-def connect(url):
-    print(f'Connecting to {url}, please wait...');
+def connect(host=None):
+    print(f'Connecting to https://{host}, please wait...');
     time.sleep(3);
-    print(f'Connected to {url} on port 8080.');
-    action=input(f'{url}> ');
+    print(f'Connected to https://{host} on port 8080.');
+    action=input(f'https://{url}> ');
     print(f'{action}');
 ##end
 def disconnect():
