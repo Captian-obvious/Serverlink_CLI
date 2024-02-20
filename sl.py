@@ -14,8 +14,14 @@ def connect(host=None,options=None):
     ##end
     print(f'Connecting to https://{host}, please wait...');
     time.sleep(3);
-    print(f'Connected to https://{host} on port 8080.');
-    isReconnect=input('> ');
+    try:
+        if (socket.gethostfromname(host)):
+            addr=socket.gethostfromname(host);
+            print(f'Connected to https://{addr} on port 8080.');
+        ##endif
+    except socket.gaierror as err:
+        print('Unable to get address info.. Host doesn\'t exist or is not resolved.')
+    ##endtry
 ##end
 def disconnect():
     print('disconnect called');
