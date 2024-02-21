@@ -144,7 +144,7 @@ def connect(host=None,port=None):
                             mount(host,port);
                         ##endif
                     ##endif
-                elif (isLoggedIn) and (action.lower()=='unmount' or action.lower()=='unmt'):
+                elif (action.lower()=='unmount' or action.lower()=='unmt'):
                     print('Unmounting from VirtualDrive');
                     if (args!=[]):
                         unmountGranted=ynPrompt('Are you sure you want to unmount? You will lose any unsaved progress.(y/n)\n> ');
