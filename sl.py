@@ -59,24 +59,42 @@ def sshto(host,port):
 def dirExists(path):
     return os.path.exists(path);
 ##end
-def mount(host,port):
+def createWinADFIfNotPresent():
+    appDataPath=os.getenv('APPDATA');
+    if (appDataPath!=None):
+        if (not dirExists(f'{appDataPath}/Serverlink')):
+            os.mkdir(f'{appDataPath}/Serverlink');
+        ##endif
+    else:
+        print('Failed to find %APPDATA% directory..');
+    ##endif
+##end
+def createLinuxADFIfNotPresent():
+    if (not dirExists(f'~/.local/share/Serverlink')):
+        os.mkdir(f'~/.local/share/Serverlink');
+    ##endif
+##end
+def mount(host,port,path=None):
     os_name=platform.system();
     if (os_name=='Linux'):
         if (dirExists('/media/Serverlink')):
-            os.mkdir(f'/media/Serverlink/sl-{host}');
+            os.mkdir(f'/media/Serverlink/{host}');
         else:
             os.mkdir('/media/Serverlink');
-            os.mkdir(f'/media/Serverlink/sl-{host}');
+            os.mkdir(f'/media/Serverlink/{host}');
         ##endif
     elif (os_name=='Windows'):
         appDataPath=os.getenv('APPDATA');
         if (appDataPath!=None):
-            if (dirExists(f'{appDataPath}/Serverlink')):
-                os.mkdir(f'{appDataPath}/Serverlink/{host}');
-            else:
-                os.mkdir(f'{appDataPath}/Serverlink');
-                os.mkdir(f'{appDataPath}/Serverlink/{host}');
-            ##endif
+            createWinADFIfNotPresent();
+            def createAppDataConnection(host):
+                if (dirExists(f'{appDataPath}/Serverlink/Connections')):
+                    os.mkdir(f'{appDataPath}/Serverlink/Connections/{host}');
+                else:
+                    os.mkdir(f'{appDataPath}/Serverlink/Connections');
+                    createAppDataConnection(host);
+                ##endif
+            ##end
         else:
             print('Failed to find %APPDATA% directory..');
         ##endif
@@ -105,26 +123,26 @@ def connect(host=None,port=None):
         global magicExitCode;
         while (not magicExitCode):
             command=input(f'https://{dir} >');
-            action,args=parseInput(command);
+            action,cmdargs=parseInput(command);
             if (action.lower()=='exit' or action.lower()=='quit' or action.lower()=='disconnect'):
                 magicExitCode=True;
             elif (action.lower()=='mount' or action.lower()=='mt'):
                 print('Mounting to VirtualDrive.');
                 if (args!=[]):
-                    path=args[0];
-                    if (path=='' or path=='/'):
-                        print('Mounting to Root Directory of VirtualDrive. To mount another, unmount this one.');
+                    isDir=strToBool(cmdargs[0]);
+                    if (isDir==True and len(cmdargs)>1):
+                        mountPath=cmdargs[1];
+                        mount(host,port,mountPath);
+                    else:
+                        mount(host,port);
                     ##endif
                 ##endif
             elif (action.lower()=='unmount' or action.lower()=='unmt'):
                 print('Unmounting from VirtualDrive');
                 if (args!=[]):
-                    path=args[0];
                     unmountGranted=ynPrompt('Are you sure you want to unmount? You will lose any unsaved progress.(y/n)\n> ');
                     if (unmountGranted):
-                        if (path=='' or path=='/'):
-                            print('Unmounting from Root Directory of VirtualDrive.');
-                        ##endif
+                        print('Unmounting...');
                     else:
                         print('Unmounting cancelled');
                     ##endif
@@ -138,7 +156,7 @@ def connect(host=None,port=None):
         print(f'Connected to https://{host} on port {port}.');
         magicExitCode=False;
         doCLI(host);
-        yn=input('Connection halted. Would you like to reconnect (y/n)?\n> ');
+        yn=ynPrompt('Connection halted. Would you like to reconnect (y/n)?\n> ');
         if (yn):
             connect(host,port);
         else:
@@ -152,7 +170,7 @@ def connect(host=None,port=None):
 def disconnect():
     print('disconnect called');
     print('Committing Changes, This may take a moment.');
-    time.sleep(2);
+    time.sleep(3);
     print('Changes Successfully deployed!');
 ##end
 def main():
@@ -163,16 +181,35 @@ def main():
             if (len(args)>2):
                 def getInputArg(bool):
                     global host,port;
-                    host=args[2].lower();
-                    if (len(args)>3):
-                        port=int(args[3]);
+                    if (bool):
+                        cmd=input('connect> ');
+                        cmdargs=cmd.split(' ');
+                        host=cmdargs[0].lower();
+                        if (len(cmdargs)>1):
+                            port=int(cmdargs[1]);
+                        else:
+                            port=8080;
+                        ##endif
+                        if (host!=None and host!=""):
+                            connect(host,port);
+                        else:
+                            getInputArg(True);
+                        ##endif
                     else:
-                        port=8080;
-                    ##endif
-                    if (host!=None and host!=""):
-                        connect(host,port);
+                        host=args[2].lower();
+                        if (len(args)>3):
+                            port=int(args[3]);
+                        else:
+                            port=8080;
+                        ##endif
+                        if (host!=None and host!=""):
+                            connect(host,port);
+                        else:
+                            getInputArg(True);
+                        ##endif
                     ##endif
                 ##end
+                getInputArg(False);
             elif (len(args)==2):
                 def getInput():
                     host=input('> ');
