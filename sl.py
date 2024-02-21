@@ -122,29 +122,37 @@ def connect(host=None,port=None):
     def doCLI(dir):
         global magicExitCode;
         while (not magicExitCode):
-            command=input(f'https://{dir} >');
+            command=input(f'https://{dir}>');
             action,cmdargs=parseInput(command);
             if (action.lower()=='exit' or action.lower()=='quit' or action.lower()=='disconnect'):
                 magicExitCode=True;
-            elif (action.lower()=='mount' or action.lower()=='mt'):
-                if (args!=[]):
-                    print('Mounting to VirtualDrive.');
-                    isDir=strToBool(cmdargs[0]);
-                    if (isDir==True and len(cmdargs)>1):
-                        mountPath=cmdargs[1];
-                        mount(host,port,mountPath);
-                    else:
-                        mount(host,port);
-                    ##endif
+            elif (action.lower()=='login' or action.lower()=='auth' or action.lower()=='authorize'):
+                if (args!=[] and len(args)>1):
+                    handleAuthorize(args)
+                else:
+                    print(f'Expected 2 Arguments, got {len(args)}');
                 ##endif
-            elif (action.lower()=='unmount' or action.lower()=='unmt'):
-                print('Unmounting from VirtualDrive');
-                if (args!=[]):
-                    unmountGranted=ynPrompt('Are you sure you want to unmount? You will lose any unsaved progress.(y/n)\n> ');
-                    if (unmountGranted):
-                        print('Unmounting...');
-                    else:
-                        print('Unmounting cancelled');
+            elif (isLoggedIn):
+                if (action.lower()=='mount' or action.lower()=='mt'):
+                    if (args!=[]):
+                        print('Mounting to VirtualDrive.');
+                        isDir=strToBool(cmdargs[0]);
+                        if (isDir==True and len(cmdargs)>1):
+                            mountPath=cmdargs[1];
+                            mount(host,port,mountPath);
+                        else:
+                            mount(host,port);
+                        ##endif
+                    ##endif
+                elif (isLoggedIn) and (action.lower()=='unmount' or action.lower()=='unmt'):
+                    print('Unmounting from VirtualDrive');
+                    if (args!=[]):
+                        unmountGranted=ynPrompt('Are you sure you want to unmount? You will lose any unsaved progress.(y/n)\n> ');
+                        if (unmountGranted):
+                            print('Unmounting...');
+                        else:
+                            print('Unmounting cancelled');
+                        ##endif
                     ##endif
                 ##endif
             ##endif
