@@ -1,4 +1,4 @@
-import os,platform,socket,sys,time;
+import os,platform,re,requests,socket,sys,time;
 #ARGUMENT PARSER
 def parseArguments(args=None,parseOptions=None):
     if (args!=None):
