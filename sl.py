@@ -127,8 +127,8 @@ def connect(host=None,port=None):
             if (action.lower()=='exit' or action.lower()=='quit' or action.lower()=='disconnect'):
                 magicExitCode=True;
             elif (action.lower()=='mount' or action.lower()=='mt'):
-                print('Mounting to VirtualDrive.');
                 if (args!=[]):
+                    print('Mounting to VirtualDrive.');
                     isDir=strToBool(cmdargs[0]);
                     if (isDir==True and len(cmdargs)>1):
                         mountPath=cmdargs[1];
