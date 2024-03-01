@@ -1,4 +1,6 @@
-import os,platform,re,requests,socket,sys,time;
+import os,platform,re,requests,socket,sys,threading,time,views;
+import tkinter as tk;
+from tkinter import ttk;
 #ARGUMENT PARSER
 def parseArguments(args=None,parseOptions=None):
     if (args!=None):
@@ -52,8 +54,19 @@ def validateInput(prompt=None,onEnter=None):
         return val;
     ##endif
 ##end
+#GUI VIEWS
+def openConfigMenu():
+    def menu():
+        views.configMenu();
+    ##end
+    th=threading.Thread(target=menu);
+    th.start();
+##end
 #HELPER FUNCTIONS
-def sshto(host,port):
+def handleAuthorize(args):
+    pass;
+##end
+def sshto(host,port,user=None,pw=None):
     pass;
 ##end
 def dirExists(path):
@@ -70,8 +83,8 @@ def createWinADFIfNotPresent():
     ##endif
 ##end
 def createLinuxADFIfNotPresent():
-    if (not dirExists(f'~/.local/share/Serverlink')):
-        os.mkdir(f'~/.local/share/Serverlink');
+    if (not dirExists('~/.local/share/Serverlink')):
+        os.mkdir('~/.local/share/Serverlink');
     ##endif
 ##end
 def mount(host,port,path=None):
@@ -110,11 +123,8 @@ def strToBool(string):
     ##endif
 ##end
 #CLI FUNCTIONS
-def handleViewAsPage(url):
-    print(f'Viewing {url} as Page with Microsoft Edge WebView');
-##end
-def handleViewAsText(url):
-    print(f'Viewing {url} as Text with tkinter');
+def handleViewPage(url,asText):
+    print(f'Viewing {url} with WebView');
 ##end
 def connect(host=None,port=None):
     global magicExitCode;
@@ -128,7 +138,7 @@ def connect(host=None,port=None):
                 magicExitCode=True;
             elif (action.lower()=='login' or action.lower()=='auth' or action.lower()=='authorize'):
                 if (args!=[] and len(args)>1):
-                    handleAuthorize(args)
+                    handleAuthorize(args);
                 else:
                     print(f'Expected 2 Arguments, got {len(args)}');
                 ##endif
@@ -185,7 +195,8 @@ def main():
     args=sys.argv;
     print(f'SCRIPT: {args[0]}');
     if (len(args)>1):
-        if (args[1].lower()=='>connect'):
+        action=args[1];
+        if (action.lower()=='/connect'):
             if (len(args)>2):
                 def getInputArg(bool):
                     global host,port;
@@ -220,15 +231,29 @@ def main():
                 getInputArg(False);
             elif (len(args)==2):
                 def getInput():
-                    host=input('> ');
-                    if (host!=None and host!=""):
-                        connect(host);
+                    global host,port;
+                    argstr=input('connect> ');
+                    cmdargs=argstr.split(' ');
+                    if (len(cmdargs)>0):
+                        host=cmdargs[0];
+                        if (len(cmdargs)>1):
+                            port=int(cmdargs[1]);
+                        else:
+                            port=8080;
+                        ##endif
+                        if (host!=None and host!=""):
+                            connect(host,port);
+                        else:
+                            getInput();
+                        ##endif
                     else:
                         getInput();
                     ##endif
                 ##end
                 getInput();
             ##endif
+        elif (action=='/cfg'):
+            openConfigMenu();
         ##endif
     else:
         print(f'Welcome to Serverlink v1.20.0\nWhat would you like to do?');
@@ -262,11 +287,7 @@ def main():
                     url=cmdargs[0];
                     if (len(cmdargs)>1):
                         asText=strToBool(cmdargs[1]);
-                        if (asText==True):
-                            handleViewAsText(url);
-                        else:
-                            handleViewAsPage(url);
-                        ##endif
+                        handleViewPage(url,asText);
                     ##endif
                 ##endif
             elif (action=='ssh'):
@@ -286,6 +307,8 @@ def main():
                     ##endif
                     sshto(url,port);
                 ##endif
+            elif (action=='cfg'):
+                openConfigMenu();
             else:
                 print(f"SYNTAX ERROR: Unknown command '{action}'.");
             ##endif
